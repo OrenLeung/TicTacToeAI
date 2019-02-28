@@ -1,5 +1,8 @@
-#TicTacToe AI using minimax algorithm through depth first search
-#By: Oren Leung
+'''
+TicTacToe AI using minimax algorithm through depth first search
+and alpha-beta pruning to optimize the program
+By: Oren Leung
+'''
 from os import system
 import math
 import time
@@ -56,7 +59,7 @@ def getScore(depth):
         score *= i
     return score
 
-def minimax(state, intial, depth, symbol):
+def minimax(state, intial, depth, symbol,alpha,beta):
     if boardWin("X",state):
         return getScore(depth)
     elif boardWin("O",state):
@@ -77,11 +80,14 @@ def minimax(state, intial, depth, symbol):
         for cell in empty(state):
             newState = state.copy()
             newState = insertPiece(newState,cell,"X")
-            eval = minimax(newState,intial,depth+1,"X")
+            eval = minimax(newState,intial,depth+1,"X",alpha,beta)
             if depth == intial:
                 if eval > maxEval:
                     idealPath = cell
             maxEval = max(maxEval,eval)
+            alpha = max(alpha,eval)
+            if beta <= alpha:
+                break
         if depth == intial :
             return idealPath
         else:
@@ -90,8 +96,11 @@ def minimax(state, intial, depth, symbol):
         for cell in empty(state):
             newState = state.copy()
             newState = insertPiece(newState,cell,"O")
-            eval = minimax(newState,intial,depth+1,"O")
+            eval = minimax(newState,intial,depth+1,"O",alpha,beta)
             minEval = min(minEval,eval)
+            beta = min(beta,eval)
+            if beta <= alpha:
+                break
         return minEval
 
 def compMove(board):
@@ -100,7 +109,7 @@ def compMove(board):
     if depth == 0:
         return
     else:
-        cMove = minimax(board,initalLayer,initalLayer,"O")
+        cMove = minimax(board,initalLayer,initalLayer,"O",-math.inf,math.inf)
         insertPiece(board,cMove,"X")
         clean()
         print("Computer's Move")
@@ -111,7 +120,7 @@ def playerMove(board):
     emptyCell = empty(board)
     while True:
         pMove = int(input("Please Enter a Move: ")) - 1
-        if pMove != emptyCell:
+        if pMove not in emptyCell:
             print("Please Enter a Valid Move!")
         else:
             break
@@ -132,6 +141,7 @@ def main():
     clean()
     while play == "yes":
         board = [" "," "," "," "," "," "," "," "," "]
+        printBoard(board)
         while len(empty(board)) > 0:
             playerMove(board)
             compMove(board)
@@ -149,7 +159,7 @@ def main():
         print("Computer Wins: " + str(comCounter))
         print("Human Wins: " + str(humanCounter))
         play = input("Do you want to play again?(Yes/No): ").lower()
-
+    print("Thanks for trying to beat me!")
 
 if __name__ == "__main__":
     main()
